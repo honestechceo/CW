@@ -1,0 +1,671 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Cartel Wars</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil+Display:wght@700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: sodium-lit street ledger. Sticky status rail, scrolling tab strip, one working panel. Single dark look by design. */
+:root{
+  --asphalt:#121315; --slab:#1b1d20; --slab2:#24272b; --line:#33373d;
+  --chalk:#e6e1d6; --dim:#8d8a82; --sodium:#e8a33d; --blood:#d2533f; --cash:#8fbf86; --heat:#ff7a45; --ice:#7fb0c9;
+  --display:"Big Shoulders Stencil Display", Impact, "Arial Narrow", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--asphalt);color:var(--chalk);font:13px/1.5 var(--mono);padding-inline:16px;padding-block:0 32px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--sodium);outline-offset:2px}
+.wrap{max-width:1040px;margin:0 auto}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--asphalt);padding-block:12px 8px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1{font:900 34px/1 var(--display);letter-spacing:.04em;margin:0;color:var(--sodium);text-transform:uppercase}
+.who{color:var(--dim);font-size:12px}
+.who b{color:var(--chalk)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:6px;margin-top:10px}
+.st{background:var(--slab);border:1px solid var(--line);padding:5px 8px;min-width:0}
+.st small{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.st span{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.bar{height:3px;background:var(--slab2);margin-top:3px}
+.bar i{display:block;height:100%}
+.status{margin-top:8px;padding:6px 10px;border:1px solid var(--blood);color:var(--blood);display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.tabs{display:flex;gap:2px;overflow-x:auto;margin-top:10px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{background:none;border:0;border-bottom:2px solid transparent;padding:6px 10px;color:var(--dim);font:700 16px var(--display);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--chalk);border-color:var(--sodium)}
+.tab .dot{display:inline-block;width:6px;height:6px;background:var(--blood);border-radius:50%;margin-left:4px;vertical-align:middle}
+main{padding-top:16px;display:grid;gap:18px}
+h2{font:700 22px/1.1 var(--display);letter-spacing:.06em;text-transform:uppercase;margin:0 0 4px;text-wrap:balance}
+.lede{color:var(--dim);margin:0 0 10px;max-width:65ch}
+.lede b{color:var(--chalk);font-weight:500}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.card{background:var(--slab);border:1px solid var(--line);padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.card h3{margin:0;font-size:13px;font-weight:600;display:flex;justify-content:space-between;gap:8px}
+.meta{color:var(--dim);font-size:11.5px;display:flex;flex-wrap:wrap;gap:4px 10px}
+.meta b{color:var(--chalk);font-weight:500}
+.btn{background:var(--slab2);border:1px solid var(--line);padding:6px 10px;font-weight:600;text-align:center}
+.btn:hover:not(:disabled){border-color:var(--sodium);color:var(--sodium)}
+.btn.go{background:var(--sodium);color:#1a1206;border-color:var(--sodium)}
+.btn.go:hover:not(:disabled){filter:brightness(1.1);color:#1a1206}
+.btn.red{border-color:var(--blood);color:var(--blood)}
+.btn.sm{padding:2px 8px;min-width:30px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.pill{font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:1px 6px;border:1px solid var(--line);color:var(--dim);white-space:nowrap}
+.pill.own{border-color:var(--sodium);color:var(--sodium)}
+.pill.ally{border-color:var(--ice);color:var(--ice)}
+.pill.foe{border-color:var(--blood);color:var(--blood)}
+.pill.ok{border-color:var(--cash);color:var(--cash)}
+.up{color:var(--cash)} .down{color:var(--blood)}
+.frac{font:900 44px/1 var(--display);letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.frac .a{color:var(--blood)} .frac .d{color:var(--ice)} .frac .s{color:var(--dim);margin:0 6px}
+.frac.sm{font-size:26px}
+.presets{display:flex;gap:6px;flex-wrap:wrap}
+.preset{background:var(--slab);border:1px solid var(--line);padding:6px 10px;text-align:left;min-width:120px}
+.preset[aria-pressed="true"]{border-color:var(--sodium)}
+.preset small{display:block;color:var(--dim);font-size:10px;letter-spacing:.1em;text-transform:uppercase}
+.wl{display:grid;gap:4px}
+.wrow{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:8px;align-items:center;background:var(--slab);border:1px solid var(--line);padding:6px 10px}
+.wrow .nm{min-width:0}
+.wrow .nm small{color:var(--dim);display:block}
+.ct{font-variant-numeric:tabular-nums;min-width:56px;text-align:center}
+.tri{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:6px}
+.map{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;max-width:520px}
+.blk{aspect-ratio:1;max-width:100%;border:1px solid var(--line);background:var(--slab);padding:4px;font-size:10px;line-height:1.2;text-align:left;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
+.blk b{font-size:10.5px;font-weight:600;overflow-wrap:anywhere}
+.blk.mine{background:color-mix(in srgb,var(--sodium) 22%,var(--slab));border-color:var(--sodium)}
+.blk.ally{background:color-mix(in srgb,var(--ice) 15%,var(--slab));border-color:var(--ice)}
+.blk.foe{background:color-mix(in srgb,var(--blood) 14%,var(--slab))}
+.blk[aria-pressed="true"]{outline:2px solid var(--chalk);outline-offset:1px}
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media (max-width:700px){.split{grid-template-columns:minmax(0,1fr)}}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.tw{overflow-x:auto}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-weight:500}
+tr.me td{color:var(--sodium)}
+input,select{background:var(--slab2);border:1px solid var(--line);color:var(--chalk);font:inherit;padding:6px 8px;min-width:0}
+.feed{background:var(--slab);border:1px solid var(--line);height:300px;overflow-y:auto;padding:8px 10px;display:flex;flex-direction:column;gap:3px}
+.feed p{margin:0;overflow-wrap:anywhere}
+.feed .n{color:var(--sodium)} .feed .sys{color:var(--dim);font-style:italic} .feed .mine .n{color:var(--cash)}
+.log{font-size:12px;color:var(--dim);display:grid;gap:2px;max-height:170px;overflow:auto}
+.log p{margin:0}
+.ring{border:1px solid var(--sodium);background:var(--slab);padding:12px;display:grid;gap:12px}
+.vs{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:center}
+.vs .mid{font:900 28px var(--display);color:var(--dim)}
+.side{min-width:0}
+.side small{color:var(--dim);display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+.pips{display:flex;gap:4px;margin-top:4px}
+.pips i{width:14px;height:6px;background:var(--slab2);border:1px solid var(--line)}
+.pips i.w{background:var(--sodium);border-color:var(--sodium)}
+.rlog{display:grid;gap:3px;font-size:12px}
+.rlog p{margin:0}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--slab2);border:1px solid var(--sodium);padding:8px 14px;max-width:calc(100vw - 32px);z-index:9;transition:opacity .25s}
+.toast.bad{border-color:var(--blood)}
+.pic{height:72px;display:grid;place-items:center;background:var(--slab2);border:1px solid var(--line)}
+.pic svg{height:58px;width:auto;max-width:100%;fill:currentColor}
+.pic .k{fill:var(--slab2)}
+.pic .s{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.pic .s.k2{stroke:var(--slab2);stroke-width:1.5}
+.pic.sm{height:40px;width:62px}
+.pic.sm svg{height:32px}
+.acc{opacity:.35} .acc.got{opacity:1;border-color:var(--sodium)}
+.intro{background:var(--slab);border:1px solid var(--sodium);padding:16px;display:grid;gap:10px;max-width:520px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="brand"><h1>Cartel Wars</h1><div class="who" id="who"></div></div>
+  <div class="stats" id="stats"></div>
+  <div id="status"></div>
+  <nav class="tabs" id="tabs" role="tablist"></nav>
+</header>
+<main id="main"></main>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(()=>{
+const $=s=>document.querySelector(s);
+const R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const fmt=n=>'$'+Math.round(n).toLocaleString('en-US');
+const fmtK=n=>{n=Math.round(n);return Math.abs(n)>=1e6?'$'+(n/1e6).toFixed(2)+'M':Math.abs(n)>=1e4?'$'+(n/1e3).toFixed(1)+'K':fmt(n)};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const now=()=>Date.now();
+const secs=t=>{const s=Math.max(0,Math.ceil((t-now())/1000));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+
+/* ---------- static data ---------- */
+const PRODUCTS=[
+ {id:'hydro',name:'Hydro',base:120,unit:'lb'},
+ {id:'pills',name:'Pills',base:340,unit:'bottle'},
+ {id:'powder',name:'Powder',base:1400,unit:'kilo'},
+ {id:'guns',name:'Hot Iron',base:900,unit:'crate'},
+ {id:'cash',name:'Counterfeit',base:600,unit:'stack'}];
+const LABS=[
+ {id:'grow',name:'Grow House',prod:'hydro',rate:2,cost:8000,lvl:1,heat:.15},
+ {id:'pharm',name:'Pill Mill',prod:'pills',rate:1,cost:22000,lvl:3,heat:.3},
+ {id:'print',name:'Print Shop',prod:'cash',rate:1,cost:35000,lvl:5,heat:.35},
+ {id:'armory',name:'Back-Room Armory',prod:'guns',rate:1,cost:60000,lvl:7,heat:.5},
+ {id:'kitchen',name:'Jungle Kitchen',prod:'powder',rate:1,cost:90000,lvl:8,heat:.6}];
+/* Weapons: each takes one slot. type decides the setup style. */
+const TYPES={close:'Close quarters',ranged:'Firearms',heavy:'Heavy',armor:'Armor & clothing'};
+const WEAPONS=[
+ {id:'blade',name:'Knife',type:'close',atk:1,def:1,price:100},
+ {id:'knux',name:'Brass Knuckles',type:'close',atk:1,def:2,price:150},
+ {id:'machete',name:'Machete',type:'close',atk:3,def:1,price:700},
+ {id:'katana',name:'Katana',type:'close',atk:6,def:3,price:5000},
+ {id:'nine',name:'9mm Pistol',type:'ranged',atk:3,def:2,price:1200},
+ {id:'revolver',name:'.357 Revolver',type:'ranged',atk:4,def:2,price:2200},
+ {id:'uzi',name:'Uzi',type:'ranged',atk:5,def:1,price:3000},
+ {id:'ar',name:'Assault Rifle',type:'ranged',atk:9,def:4,price:9000},
+ {id:'sniper',name:'Sniper Rifle',type:'ranged',atk:12,def:2,price:16000},
+ {id:'sawed',name:'Sawed-Off',type:'heavy',atk:5,def:3,price:2500},
+ {id:'shotgun',name:'Pump Shotgun',type:'heavy',atk:8,def:4,price:6000},
+ {id:'grenade',name:'Grenades',type:'heavy',atk:10,def:1,price:8000},
+ {id:'rpg',name:'RPG',type:'heavy',atk:13,def:3,price:24000},
+ {id:'clothes',name:'Plain Clothes',type:'armor',atk:0,def:1,price:50},
+ {id:'leather',name:'Leather Jacket',type:'armor',atk:0,def:2,price:300},
+ {id:'workuni',name:'Work Uniform',type:'armor',atk:0,def:3,price:700},
+ {id:'helmet',name:'Combat Helmet',type:'armor',atk:0,def:4,price:1500},
+ {id:'vest',name:'Bulletproof Vest',type:'armor',atk:1,def:5,price:2000},
+ {id:'police',name:'Police Uniform',type:'armor',atk:1,def:6,price:4000},
+ {id:'shield',name:'Riot Gear',type:'armor',atk:1,def:7,price:6000},
+ {id:'military',name:'Military Uniform',type:'armor',atk:2,def:8,price:9000},
+ {id:'plate',name:'Plate Carrier',type:'armor',atk:0,def:10,price:13000},
+ {id:'tactical',name:'Tactical Gear',type:'armor',atk:2,def:11,price:18000},
+ {id:'bombsuit',name:'Bomb Suit',type:'armor',atk:1,def:12,price:24000},
+ {id:'exo',name:'Exoskeleton',type:'armor',atk:3,def:14,price:45000},
+ {id:'mech',name:'Mech Armor',type:'armor',atk:4,def:16,price:90000}];
+const GEAR=[
+ {id:'sedan',name:'Beat-Up Sedan',d:'Unlocks chop shop and convoy jobs',price:3000},
+ {id:'burner',name:'Burner Phones',d:'Unlocks convoy and laundering jobs',price:400},
+ {id:'scale',name:'Digital Scale',d:'Unlocks laundering',price:900},
+ {id:'suv',name:'Armored SUV',d:'Unlocks port jobs',price:55000},
+ {id:'go',name:'Go-Fast Boat',d:'Unlocks water runs',price:120000},
+ {id:'lawyer',name:'Lawyer on Retainer',d:'Halves jail time',price:40000}];
+const W=id=>WEAPONS.find(w=>w.id===id), G=id=>GEAR.find(g=>g.id===id);
+/* Item pictures: 64x40 silhouettes. Solid = currentColor, .k = cut-out detail, .s = stroke line */
+const TEE='M20 8 L28 6 Q32 11 36 6 L44 8 L54 16 L48 22 L44 19 L44 36 L20 36 L20 19 L16 22 L10 16 Z';
+const LONG='M20 6 L28 4 Q32 9 36 4 L44 6 L52 14 L54 36 L48 36 L46 19 L44 19 L44 36 L20 36 L20 19 L18 19 L16 36 L10 36 L12 14 Z';
+const VEST='M22 5 L28 5 Q32 12 36 5 L42 5 L44 13 L48 17 L48 36 L16 36 L16 17 L20 13 Z';
+const ICONS={
+ blade:'<rect x="8" y="18" width="16" height="6" rx="2"/><rect x="23" y="15" width="3" height="12" rx="1"/><path d="M26 18 L56 19 L49 24 L26 24 Z"/><circle class="k" cx="12" cy="21" r="1.2"/>',
+ knux:'<circle class="s" cx="19" cy="15" r="5"/><circle class="s" cx="28" cy="15" r="5"/><circle class="s" cx="37" cy="15" r="5"/><circle class="s" cx="46" cy="15" r="5"/><path d="M14 21 L51 21 Q51 30 40 32 L25 32 Q14 30 14 21 Z"/>',
+ machete:'<rect x="6" y="19" width="14" height="6" rx="2"/><path d="M20 17 L52 13 Q61 15 57 22 L20 25 Z"/><circle class="k" cx="10" cy="22" r="1.2"/><circle class="k" cx="16" cy="22" r="1.2"/>',
+ katana:'<rect x="4" y="22" width="14" height="4" rx="1"/><ellipse cx="19.5" cy="23" rx="2" ry="5"/><path d="M21 21 Q42 17 61 9 L61 11.5 Q43 21 21 25 Z"/><path class="k" d="M6 23 h2 v2 h-2z M11 23 h2 v2 h-2z"/>',
+ nine:'<rect x="14" y="12" width="36" height="8" rx="1"/><path d="M18 20 L29 20 L27 34 L16 34 Z"/><path class="s" d="M29 20 Q31 27 37 21"/><rect class="k" x="40" y="14" width="8" height="1.5"/>',
+ revolver:'<rect x="34" y="12.5" width="24" height="5" rx="1"/><rect x="18" y="11" width="18" height="10" rx="2"/><rect x="23" y="9.5" width="11" height="13" rx="3"/><path d="M18 21 L27 21 L24 35 L13 33 Z"/><path class="s" d="M27 21 Q29 27 34 21"/><path class="k" d="M26 13 h1.5 v9 h-1.5z M30 13 h1.5 v9 h-1.5z"/>',
+ uzi:'<rect x="12" y="12" width="32" height="9" rx="1"/><rect x="44" y="14.5" width="9" height="3.5"/><rect x="26" y="21" width="6" height="16"/><path class="s" d="M32 21 Q34 26 39 21"/><rect class="k" x="15" y="15" width="8" height="2"/>',
+ ar:'<path d="M3 14 L14 16 L14 22 L3 27 Z"/><rect x="14" y="13" width="26" height="8"/><rect x="40" y="15" width="21" height="3"/><path d="M27 21 L33 21 L36 33 L30 33 Z"/><path d="M18 21 L22 21 L21 29 L16 29 Z"/><rect x="22" y="9" width="9" height="4"/><rect x="40" y="13" width="9" height="7" rx="1"/>',
+ sniper:'<path d="M3 15 L16 17 L16 22 L5 26 Z"/><rect x="16" y="15" width="18" height="6"/><rect x="34" y="16.5" width="28" height="2.5"/><rect x="17" y="8" width="17" height="5" rx="2.5"/><rect x="21" y="12.5" width="2" height="3"/><rect x="29" y="12.5" width="2" height="3"/><path d="M20 21 L24 21 L23 29 L18 29 Z"/><path class="k" d="M19 9.5 h13 v2 h-13z"/>',
+ sawed:'<path d="M6 18 L16 16 L14 29 L5 29 Z"/><rect x="14" y="13" width="16" height="7" rx="1"/><rect x="30" y="13" width="20" height="3"/><rect x="30" y="17" width="20" height="3"/><path class="s" d="M18 20 Q20 26 25 20"/>',
+ shotgun:'<path d="M3 15 L16 17 L16 22 L3 26 Z"/><rect x="16" y="14" width="14" height="7"/><rect x="30" y="14" width="31" height="3"/><rect x="34" y="17.5" width="15" height="4.5" rx="1"/><path class="s" d="M19 21 Q21 26 25 21"/><path class="k" d="M37 18.5 v2.5 M40 18.5 v2.5 M43 18.5 v2.5 M46 18.5 v2.5" stroke="var(--slab2)" stroke-width="1"/>',
+ grenade:'<ellipse cx="31" cy="25" rx="10" ry="12"/><rect x="27" y="9" width="8" height="5" rx="1"/><path class="s" d="M35 10 L42 14 L40 27"/><circle class="s" cx="24" cy="10" r="3.5"/><path class="k" d="M22 21 h18 v1.6 h-18z M22 27 h18 v1.6 h-18z M30 14 h1.6 v22 h-1.6z"/>',
+ rpg:'<rect x="5" y="17" width="45" height="5"/><path d="M50 12 L54 12 L62 19.5 L54 27 L50 27 Z"/><rect x="21" y="22" width="4" height="9"/><rect x="31" y="22" width="4" height="9"/><rect x="25" y="11" width="7" height="6"/><rect x="3" y="15.5" width="5" height="8"/>',
+ clothes:'<path d="'+TEE+'"/><path class="k" d="M27 7 Q32 13 37 7 L36 6 Q32 11 28 6 Z"/>',
+ leather:'<path d="'+LONG+'"/><path class="s k2" d="M32 9 L32 36"/><path class="k" d="M28 4 L32 12 L24 14 Z M36 4 L32 12 L40 14 Z"/><rect class="k" x="23" y="25" width="5" height="1.6"/><rect class="k" x="36" y="25" width="5" height="1.6"/>',
+ workuni:'<path d="'+TEE+'"/><rect class="k" x="23" y="15" width="7" height="6" rx="1"/><rect class="k" x="35" y="15" width="7" height="3" rx="1"/><path class="k" d="M31.3 9 h1.4 v27 h-1.4z"/>',
+ helmet:'<path d="M14 28 Q14 7 32 7 Q50 7 50 28 L57 30 L57 33 L7 33 L7 30 Z"/><path class="k" d="M16 25 Q32 21 48 25 L48 26.6 Q32 22.6 16 26.6 Z"/><rect class="k" x="29" y="10" width="6" height="2" rx="1"/>',
+ vest:'<path d="'+VEST+'"/><path class="k" d="M18 22 h28 v2 h-28z M18 29 h28 v2 h-28z"/><path class="k" d="M30.8 12 h2.4 v24 h-2.4z"/>',
+ police:'<path d="'+TEE+'"/><path class="k" d="M30 9 L34 9 L35 27 L32 30 L29 27 Z"/><path class="k" d="M40 14 l1.4 3 3.2 .3 -2.4 2.1 .8 3.1 -3 -1.7 -3 1.7 .8 -3.1 -2.4 -2.1 3.2 -.3 z"/><rect class="k" x="15" y="17" width="4" height="2" transform="rotate(35 17 18)"/>',
+ shield:'<rect x="17" y="3" width="30" height="35" rx="5"/><rect class="k" x="21" y="7" width="22" height="7" rx="1"/><path class="k" d="M21 30 h22 v2 h-22z"/><path class="k" d="M24 19 h16 v6 h-16z" opacity=".55"/>',
+ military:'<path d="'+LONG+'"/><g class="k"><ellipse cx="24" cy="15" rx="3" ry="2"/><ellipse cx="38" cy="22" rx="4" ry="2.4"/><ellipse cx="27" cy="29" rx="3.5" ry="2"/><ellipse cx="14" cy="27" rx="2" ry="3"/><ellipse cx="50" cy="25" rx="2" ry="3"/><ellipse cx="41" cy="32" rx="2.5" ry="1.6"/></g>',
+ plate:'<path d="M20 4 L27 4 L27 9 L37 9 L37 4 L44 4 L44 12 L49 14 L49 36 L15 36 L15 14 L20 12 Z"/><rect class="k" x="19" y="16" width="26" height="9" rx="1"/><rect class="k" x="19" y="28" width="7" height="6" rx="1"/><rect class="k" x="28.5" y="28" width="7" height="6" rx="1"/><rect class="k" x="38" y="28" width="7" height="6" rx="1"/>',
+ tactical:'<path d="'+VEST+'"/><rect class="k" x="19" y="20" width="5" height="9" rx="1"/><rect class="k" x="25.5" y="20" width="5" height="9" rx="1"/><rect class="k" x="33.5" y="20" width="5" height="9" rx="1"/><rect class="k" x="40" y="20" width="5" height="9" rx="1"/><rect class="k" x="23" y="14" width="18" height="3" rx="1"/><rect class="k" x="18" y="31" width="28" height="2"/>',
+ bombsuit:'<circle cx="32" cy="10" r="8"/><rect class="k" x="27" y="7" width="10" height="5" rx="2"/><path d="M18 18 Q32 14 46 18 L50 34 L44 37 L41 26 L41 38 L23 38 L23 26 L20 37 L14 34 Z"/><path class="k" d="M25 22 h14 v6 h-14z"/>',
+ exo:'<circle class="s" cx="32" cy="7" r="4"/><path class="s" d="M32 11 L32 25 M22 14 L42 14 M22 14 L18 24 L16 32 M42 14 L46 24 L48 32 M26 25 L38 25 M27 25 L25 37 M37 25 L39 37"/><circle cx="32" cy="18" r="2.5"/><circle cx="18" cy="24" r="2"/><circle cx="46" cy="24" r="2"/><circle cx="26" cy="31" r="2"/><circle cx="38" cy="31" r="2"/>',
+ mech:'<rect x="26" y="2" width="12" height="8" rx="2"/><rect class="k" x="28" y="4.5" width="8" height="2.5"/><rect x="21" y="11" width="22" height="15" rx="2"/><rect x="11" y="11" width="9" height="7" rx="2"/><rect x="44" y="11" width="9" height="7" rx="2"/><rect x="12" y="19" width="6" height="12" rx="1"/><rect x="46" y="19" width="6" height="12" rx="1"/><rect x="23" y="27" width="7" height="12" rx="1"/><rect x="34" y="27" width="7" height="12" rx="1"/><circle class="k" cx="32" cy="18" r="3"/>',
+ sedan:'<path d="M4 27 L6 20 L18 18 L25 11 L42 11 L50 18 L59 20 L60 27 Z"/><path class="k" d="M27 13 L33 13 L33 18 L22 18 Z M35 13 L41 13 L47 18 L35 18 Z"/><circle cx="17" cy="28" r="5"/><circle cx="48" cy="28" r="5"/><circle class="k" cx="17" cy="28" r="2"/><circle class="k" cx="48" cy="28" r="2"/>',
+ burner:'<rect x="24" y="3" width="17" height="34" rx="3"/><rect class="k" x="26.5" y="7" width="12" height="9" rx="1"/><g class="k"><circle cx="28.5" cy="21" r="1.4"/><circle cx="32.5" cy="21" r="1.4"/><circle cx="36.5" cy="21" r="1.4"/><circle cx="28.5" cy="25.5" r="1.4"/><circle cx="32.5" cy="25.5" r="1.4"/><circle cx="36.5" cy="25.5" r="1.4"/><circle cx="28.5" cy="30" r="1.4"/><circle cx="32.5" cy="30" r="1.4"/><circle cx="36.5" cy="30" r="1.4"/></g>',
+ scale:'<rect x="12" y="20" width="40" height="15" rx="3"/><rect x="16" y="14" width="32" height="5" rx="1"/><rect class="k" x="20" y="24" width="16" height="6" rx="1"/><circle class="k" cx="42" cy="27" r="2"/><circle class="k" cx="47" cy="27" r="1.4"/>',
+ suv:'<path d="M3 29 L4 18 L10 17 L15 8 L50 8 L56 17 L61 19 L61 29 Z"/><path class="k" d="M17 10 L28 10 L28 17 L13 17 Z M30 10 L40 10 L40 17 L30 17 Z M42 10 L49 10 L53 17 L42 17 Z"/><circle cx="16" cy="30" r="5.5"/><circle cx="49" cy="30" r="5.5"/><circle class="k" cx="16" cy="30" r="2.2"/><circle class="k" cx="49" cy="30" r="2.2"/>',
+ go:'<path d="M3 22 L61 19 L54 30 L10 30 Z"/><path d="M26 21 L33 13 L42 13 L45 20 Z"/><path class="k" d="M33 15 L40 15 L42 19 L30 19 Z"/><path class="s" d="M2 34 Q10 31 18 34 T34 34 T50 34 T62 34"/>',
+ lawyer:'<rect x="12" y="13" width="40" height="23" rx="3"/><path class="s" d="M25 13 L25 8 Q25 6 27 6 L37 6 Q39 6 39 8 L39 13"/><rect class="k" x="12" y="21" width="40" height="2"/><rect class="k" x="29" y="19" width="6" height="6" rx="1"/>'};
+const TINT={close:'--chalk',ranged:'--sodium',heavy:'--heat',armor:'--ice',gear:'--cash'};
+function pic(id,sm){const it=W(id)||G(id);const ty=W(id)?it.type:'gear';return '<div class="pic'+(sm?' sm':'')+'" style="color:var('+TINT[ty]+')" aria-hidden="true"><svg viewBox="0 0 64 40">'+(ICONS[id]||'')+'</svg></div>'}
+const ACTIONS=[
+ {id:'corner',name:'Work a corner',e:2,req:[],cash:[60,180],xp:4,heat:1,risk:.05,lvl:1},
+ {id:'collect',name:'Collect a debt',e:3,req:['blade'],cash:[200,500],xp:7,heat:2,risk:.1,lvl:1},
+ {id:'chop',name:'Run a chop shop flip',e:4,req:['sedan'],cash:[600,1400],xp:11,heat:3,risk:.12,lvl:2},
+ {id:'stash',name:'Hit a rival stash',e:6,req:['nine'],cash:[1500,3500],xp:18,heat:4,risk:.18,lvl:3},
+ {id:'convoy',name:'Escort a border convoy',e:8,req:['nine','burner','sedan'],cash:[4000,9000],xp:30,heat:5,risk:.2,lvl:5},
+ {id:'launder',name:'Wash money through a car wash',e:5,req:['scale','burner'],cash:[3000,6000],xp:20,heat:-4,risk:.06,lvl:6},
+ {id:'port',name:'Move a container at the port',e:12,req:['shotgun','suv'],cash:[18000,40000],xp:60,heat:7,risk:.22,lvl:9},
+ {id:'sea',name:'Night run on the water',e:15,req:['ar','go'],cash:[50000,110000],xp:110,heat:9,risk:.25,lvl:13}];
+/* Setup styles and counters */
+const STYLES={close:'Knife Fight',ranged:'Gunline',heavy:'Demolition',fortress:'Fortress',bare:'Bare Hands'};
+const RATIO={close:[1,.45],ranged:[1,.4],heavy:[1.1,.35],fortress:[.35,1.1]};
+function counter(a,b){
+  if(a==='close'&&b==='ranged')return 1.3;
+  if(a==='ranged'&&b==='heavy')return 1.3;
+  if(a==='heavy'&&(b==='close'||b==='fortress'))return 1.3;
+  if(a==='close'&&b==='fortress')return .6;
+  return 1;
+}
+const CAPS={hp:300,stam:100,slots:120,energy:150};
+const HOODS=['Docks','Rail Yard','Fifth Ward','Southside','Old Mill','Chinatown','Projects','Market St','Riverbend','Eastgate','Westgate','Little Havana','Uptown','Midtown','Bayview','Cannery','Hilltop','Bus Depot','Strip','Airfield','Tannery','Kings Row','Pier 9','Lowlands','Downtown'];
+const AI_CREWS=[{id:'c1',name:'Los Halcones',style:'ranged'},{id:'c2',name:'Southside Kings',style:'close'},{id:'c3',name:'Black Harbor',style:'heavy'},{id:'c4',name:'Calle 9',style:'fortress'}];
+const NAMES=['Rafa','Ghost','Nene','Big Tuna','Lupe','Smoke','Chato','Vinny P','Tre','La Flaca','Domino','Kilo Ray','Santos','Ice','Bones','Mags'];
+const CHAT=['who got iron for sale, pm me','Docks is wide open rn','{c} about to get smoked','running full fortress, good luck','anyone in a cartel looking for crew?','just hit lvl {n}','heat is crazy tonight, laying low','selling vests cheap on the market','{c} run the east side now','demolition setups eat knife fighters alive','gg {p}, you got me','who runs Fifth Ward?','switched setups mid fight and clapped him','just got out the hospital smh'];
+const ACCOLADES=[
+ {id:'first',name:'First Blood',d:'Win your first fight',t:s=>s.wins>=1},
+ {id:'ten',name:'Untouchable',d:'Win 10 fights',t:s=>s.wins>=10},
+ {id:'swap',name:'Adapt',d:'Win a fight after switching setups mid-fight',t:s=>s.flags.swapWin},
+ {id:'hood',name:'Block Captain',d:'Hold your first hood',t:s=>myHoods().length>=1},
+ {id:'five',name:'Landlord',d:'Hold 5 hoods at once',t:s=>myHoods().length>=5},
+ {id:'king',name:'Kingpin',d:'Hold 12 hoods at once',t:s=>myHoods().length>=12},
+ {id:'k1',name:'Four Figures',d:'Run a setup with 1,000 attack or defense',t:s=>{const t=totals(S.presets[S.active].lo);return t.atk>=1000||t.def>=1000}},
+ {id:'full',name:'Full Arsenal',d:'Unlock all 120 weapon slots',t:s=>s.slots>=CAPS.slots},
+ {id:'maxed',name:'Maxed Out',d:'Reach 300 health and 100 stamina',t:s=>s.maxHp>=CAPS.hp&&s.maxStam>=CAPS.stam},
+ {id:'mil',name:'Millionaire',d:'Reach $1M net worth',t:s=>netWorth()>=1e6},
+ {id:'crew',name:'Shot Caller',d:'Found a crew',t:s=>!!s.crew},
+ {id:'cartel',name:'The Cartel',d:'Form a cartel with an allied crew',t:s=>!!s.cartel},
+ {id:'jail',name:'Jailbird',d:'Get locked up',t:s=>s.jails>=1},
+ {id:'top',name:'Number One',d:'Top the Top Users list',t:s=>rankOf()===1}];
+
+/* ---------- state ---------- */
+const KEY='cartelwars.v3';
+function fresh(){
+  const crewsOwn=['c1','c1','c2','c2','c3','c3','c4','c4','c1','c2','c3','c4'];
+  return {name:null,cash:2500,bank:0,xp:0,level:1,points:0,
+    hp:100,maxHp:100,energy:30,maxEnergy:30,stam:20,maxStam:20,slots:20,
+    heat:0,sheat:0,sheatBuys:0,hospUntil:0,jailUntil:0,jails:0,
+    weapons:{blade:20},gear:{},
+    presets:[{name:'Setup A',lo:{blade:20}},{name:'Setup B',lo:{}},{name:'Setup C',lo:{}}],active:0,edit:0,
+    inv:{},labs:{},wins:0,losses:0,crew:null,soldiers:0,cartel:null,tick:0,flags:{},accolades:[],fight:null,
+    hoods:HOODS.map((n,i)=>({name:n,income:R(80,260)+i*8,def:R(15,40)+i*6,owner:i<12?crewsOwn[i]:null})),
+    prices:Object.fromEntries(PRODUCTS.map(p=>[p.id,p.base])),
+    trend:Object.fromEntries(PRODUCTS.map(p=>[p.id,0])),
+    rivals:NAMES.slice(0,12).map((n,i)=>{const st=pick(['close','ranged','heavy','fortress']);return{id:'r'+i,name:n,crew:AI_CREWS[i%4].id,level:R(1,9),cash:R(4000,90000),style:st,alt:pick(['close','ranged','heavy','fortress'].filter(x=>x!==st)),sh:R(0,30),hospUntil:0,seen:null}}),
+    listings:[],myListings:[],
+    chat:[{n:null,t:'Welcome to the city. Nobody hands you a block.'}],
+    threads:[{t:'Rules of the street (read before posting)',by:'Mod',r:41},{t:'Best setup to counter Fortress?',by:'Lupe',r:23},{t:'Calle 9 recruiting, lvl 5+',by:'Santos',r:9}],
+    log:[]};
+}
+let S; try{S=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){S=null}
+const H=window.claude&&window.claude.hot;
+if(H&&H.data&&H.data.S)S=H.data.S;
+if(!S)S=fresh();
+seedListings();
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+try{H&&H.snapshot&&H.snapshot(()=>({S}))}catch(e){}
+
+/* ---------- derived ---------- */
+const xpNeed=l=>Math.round(40*Math.pow(l,1.6));
+const myHoods=()=>S.hoods.filter(h=>h.owner==='me');
+const isAlly=o=>S.cartel&&o===S.cartel;
+const crewName=id=>id==='me'?(S.crew||S.name):(AI_CREWS.find(c=>c.id===id)||{}).name||'Unclaimed';
+const invValue=()=>PRODUCTS.reduce((a,p)=>a+(S.inv[p.id]||0)*S.prices[p.id],0);
+const armsValue=()=>Object.entries(S.weapons).reduce((a,[k,v])=>a+W(k).price*v*.5,0);
+const netWorth=()=>S.cash+S.bank+invValue()+armsValue()+myHoods().length*15000+Object.entries(S.labs).reduce((a,[k,v])=>a+v*LABS.find(l=>l.id===k).cost*.5,0);
+const rivalWorth=r=>r.cash+r.level*9000+S.hoods.filter(h=>h.owner===r.crew).length*4000;
+function board(){const l=S.rivals.map(r=>({name:r.name,crew:crewName(r.crew),level:r.level,worth:rivalWorth(r)}));l.push({name:S.name,crew:S.crew||'—',level:S.level,worth:netWorth(),me:1});return l.sort((a,b)=>b.worth-a.worth)}
+const rankOf=()=>board().findIndex(x=>x.me)+1;
+const has=id=>(S.weapons[id]||0)>0||(S.gear[id]||0)>0;
+const inHosp=()=>now()<S.hospUntil, inJail=()=>now()<S.jailUntil, locked=()=>inHosp()||inJail();
+const slotted=lo=>Object.values(lo).reduce((a,b)=>a+b,0);
+function totals(lo){
+  let atk=0,def=0;const by={close:0,ranged:0,heavy:0,armor:0};
+  for(const[k,n]of Object.entries(lo)){const w=W(k);if(!w||!n)continue;atk+=w.atk*n;def+=w.def*n;by[w.type]+=(w.atk+w.def)*n}
+  let style='bare';
+  if(atk+def>0){if(def>=atk*1.4)style='fortress';else style=['close','ranged','heavy'].sort((a,b)=>by[b]-by[a])[0]}
+  return{atk,def,style};
+}
+const pBoost=()=>(1+S.sheat/200)*(1+S.soldiers*.02)*(S.cartel?1.1:1);
+function meC(){const t=totals(S.presets[S.active].lo);return{atk:Math.max(t.atk,S.level*2),def:Math.max(t.def,S.level*2),style:t.style,boost:pBoost()}}
+function rivalC(r,which){const st=which||r.style;const q=Math.min(11,.8+r.level*.4);const sl=Math.min(120,20+r.level*4);const[ra,rd]=RATIO[st];return{atk:Math.round(sl*q*ra),def:Math.round(sl*q*rd),style:st,boost:1+r.sh/200}}
+const clearCost=pct=>Math.round((300+S.level*250)*pct/10);
+const healCost=()=>300+S.level*150;
+const bailCost=()=>2000+S.level*1500;
+const sheatCost=()=>Math.round(4000*Math.pow(1.45,S.sheatBuys));
+
+/* ---------- feedback ---------- */
+let tt;
+function toast(msg,bad){const t=$('#toast');t.textContent=msg;t.className='toast'+(bad?' bad':'');t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2800)}
+function log(m){S.log.unshift(m);S.log=S.log.slice(0,50)}
+function gainXp(x){S.xp+=x;while(S.xp>=xpNeed(S.level)){S.xp-=xpNeed(S.level);S.level++;S.points+=2;S.energy=S.maxEnergy;S.stam=S.maxStam;if(!inHosp())S.hp=S.maxHp;toast('Level '+S.level+'. You have upgrade points to spend.');log('Reached level '+S.level+' (+2 upgrade points).')}}
+function checkAcc(){ACCOLADES.forEach(a=>{if(!S.accolades.includes(a.id)&&a.t(S)){S.accolades.push(a.id);toast('Accolade: '+a.name);log('Accolade earned: '+a.name+'.')}})}
+function addHeat(p){S.heat=Math.max(0,Math.min(100,S.heat+p));if(S.heat>=100&&!inJail())jail()}
+function jail(){const t=(90+S.level*6)*(S.gear.lawyer?.5:1);S.jailUntil=now()+t*1000;S.heat=35;S.jails++;S.fight=null;toast('Police heat hit 100%. You\'re in jail.',1);log('Arrested. Jailed for '+Math.round(t)+'s.');S.chat.push({n:null,t:S.name+' got locked up.'})}
+function hospitalize(){S.hp=0;S.hospUntil=now()+(60+S.level*5)*1000;S.fight=null;log('Sent to the hospital.')}
+function blocked(){if(inJail()){toast('You\'re in jail.',1);return true}if(inHosp()){toast('You\'re in the hospital.',1);return true}return false}
+
+/* ---------- combat core ---------- */
+function round(A,B){
+  if(A.style==='fortress'&&B.style==='fortress')return{stale:1};
+  const a=A.atk*A.boost*counter(A.style,B.style)*(R(85,115)/100)/Math.max(1,B.def*B.boost);
+  const b=B.atk*B.boost*counter(B.style,A.style)*(R(85,115)/100)/Math.max(1,A.def*A.boost);
+  const aw=a>=b;const ratio=aw?a/Math.max(.01,b):b/Math.max(.01,a);
+  return{aw,dmg:Math.round(10+12*Math.min(2.5,ratio)),a,b};
+}
+
+/* ---------- jobs & upkeep ---------- */
+function doAction(id){
+  if(blocked())return;
+  const a=ACTIONS.find(x=>x.id===id);
+  if(S.energy<a.e)return toast('Not enough energy.',1);
+  S.energy-=a.e;
+  if(Math.random()<a.risk+S.heat/400){const loss=R(8,18);S.hp=Math.max(0,S.hp-loss);addHeat(a.heat+2);toast(a.name+' went bad. −'+loss+' HP.',1);log(a.name+': went bad, took '+loss+' damage.');if(S.hp<=0)hospitalize()}
+  else{const c=R(...a.cash)*(1+S.level*.03);S.cash+=c;addHeat(a.heat);gainXp(a.xp);toast(a.name+': +'+fmt(c));log(a.name+': earned '+fmt(c)+'.')}
+  done();
+}
+function layLow(){if(blocked())return;if(S.energy<5)return toast('Not enough energy.',1);S.energy-=5;S.heat=Math.max(0,S.heat-8);toast('You lay low. Police heat −8%.');done()}
+function clearHeat(pct){const p=Math.min(pct,Math.floor(S.heat));if(!p)return;const c=clearCost(p);if(S.cash<c)return toast('Clearing '+p+'% costs '+fmt(c)+'.',1);S.cash-=c;S.heat-=p;toast('Paid off the right people. Police heat −'+p+'%.');log('Cleared '+p+'% police heat for '+fmt(c)+'.');done()}
+function heal(){if(inHosp()){const c=healCost();if(S.cash<c)return toast('Checkout costs '+fmt(c)+'.',1);S.cash-=c;S.hospUntil=0;S.hp=S.maxHp;toast('Patched up and discharged.');done();return}const c=Math.round((S.maxHp-S.hp)*20);if(!c)return;if(S.cash<c)return toast('Street doc wants '+fmt(c)+'.',1);S.cash-=c;S.hp=S.maxHp;toast('Patched up.');done()}
+function bail(){const c=bailCost();if(S.cash<c)return toast('Bail is '+fmt(c)+'.',1);S.cash-=c;S.jailUntil=0;toast('Bailed out.');done()}
+function upgrade(k){if(S.points<1)return toast('No upgrade points. Level up to earn more.',1);
+  if(k==='hp'){if(S.maxHp>=CAPS.hp)return;S.maxHp+=10;if(!inHosp())S.hp+=10}
+  if(k==='stam'){if(S.maxStam>=CAPS.stam)return;S.maxStam+=5;S.stam+=5}
+  if(k==='slots'){if(S.slots>=CAPS.slots)return;S.slots+=5}
+  if(k==='energy'){if(S.maxEnergy>=CAPS.energy)return;S.maxEnergy+=5;S.energy+=5}
+  S.points--;done()}
+function buySheat(){const c=sheatCost();if(S.cash<c)return toast('Costs '+fmt(c)+'.',1);S.cash-=c;S.sheat+=R(5,10);S.sheatBuys++;toast('Word gets around. Your street heat went up.');done()}
+
+/* ---------- arsenal ---------- */
+function buyWeapon(id,q){const w=W(id);const c=w.price*q;if(S.cash<c)return toast('Need '+fmt(c)+'.',1);S.cash-=c;S.weapons[id]=(S.weapons[id]||0)+q;toast('Bought '+q+' × '+w.name+'.');done()}
+function buyGear(id){const g=G(id);if(S.gear[id])return;if(S.cash<g.price)return toast('Need '+fmt(g.price)+'.',1);S.cash-=g.price;S.gear[id]=1;toast('Bought '+g.name+'.');done()}
+function sellWeapon(id){if(!(S.weapons[id]>0))return;S.weapons[id]--;S.cash+=W(id).price*.5;clampPresets();toast('Sold a '+W(id).name+' for '+fmt(W(id).price*.5)+'.');done()}
+function clampPresets(){S.presets.forEach(p=>{for(const k in p.lo){p.lo[k]=Math.min(p.lo[k],S.weapons[k]||0);if(!p.lo[k])delete p.lo[k]}let over=slotted(p.lo)-S.slots;if(over>0){const ks=Object.keys(p.lo).sort((a,b)=>(W(a).atk+W(a).def)-(W(b).atk+W(b).def));for(const k of ks){const t=Math.min(over,p.lo[k]);p.lo[k]-=t;over-=t;if(!p.lo[k])delete p.lo[k];if(!over)break}}})}
+function setSlot(id,d){const p=S.presets[S.edit];const cur=p.lo[id]||0;const used=slotted(p.lo);let n=cur+d;if(d>0)n=Math.min(n,S.weapons[id]||0,cur+(S.slots-used));n=Math.max(0,n);if(n===cur&&d>0)return toast(used>=S.slots?'All '+S.slots+' slots are full.':'You don\'t own more of those.',1);p.lo[id]=n;if(!n)delete p.lo[id];render()}
+function autofill(mode){
+  const p=S.presets[S.edit];p.lo={};let left=S.slots;
+  const score=w=>mode==='atk'?w.atk*10+w.def:mode==='def'?w.def*10+w.atk:w.atk+w.def;
+  const pool=Object.keys(S.weapons).filter(k=>S.weapons[k]>0).map(W);
+  if(mode==='bal'){let a=0,d=0;const avail=Object.fromEntries(pool.map(w=>[w.id,S.weapons[w.id]]));
+    while(left>0){const cand=pool.filter(w=>avail[w.id]>0);if(!cand.length)break;const w=cand.sort((x,y)=>(a<=d?y.atk-x.atk||y.def-x.def:y.def-x.def||y.atk-x.atk))[0];p.lo[w.id]=(p.lo[w.id]||0)+1;avail[w.id]--;a+=w.atk;d+=w.def;left--}}
+  else{for(const w of pool.sort((x,y)=>score(y)-score(x))){const n=Math.min(left,S.weapons[w.id]);if(n>0){p.lo[w.id]=n;left-=n}if(!left)break}}
+  render();
+}
+function useSetup(i){S.active=i;toast(S.presets[i].name+' is now your active setup.');done()}
+
+/* ---------- fights ---------- */
+function startFight(id){
+  if(blocked())return;
+  const r=S.rivals.find(x=>x.id===id);
+  if(now()<r.hospUntil)return toast(r.name+' is still in the hospital.',1);
+  if(S.stam<5)return toast('A fight costs 5 stamina.',1);
+  if(S.hp<S.maxHp*.2)return toast('You\'re too hurt. Heal up first.',1);
+  S.stam-=5;
+  S.fight={rid:id,round:1,pw:0,ow:0,cur:r.style,lines:[],swapped:0,startSetup:S.active,revealed:0};
+  tab='fight';done();
+}
+function fightRound(){
+  const f=S.fight;if(!f)return;const r=S.rivals.find(x=>x.id===f.rid);
+  if(f.round>1&&f.lastSetup!==undefined&&f.lastSetup!==S.active)f.swapped=1;
+  f.lastSetup=S.active;
+  const A=meC(),B=rivalC(r,f.cur);
+  const res=round(A,B);
+  f.revealed=1;r.seen={style:B.style,atk:B.atk,def:B.def};
+  if(res.stale){f.lines.push('Round '+f.round+': '+STYLES[A.style]+' vs '+STYLES[B.style]+'. Nobody can get through. No damage.')}
+  else if(res.aw){f.pw++;f.lines.push('Round '+f.round+': your '+STYLES[A.style]+' breaks '+r.name+'\'s '+STYLES[B.style]+(counter(A.style,B.style)>1?' (counter!)':'')+'.')}
+  else{f.ow++;S.hp=Math.max(0,S.hp-res.dmg);f.lines.push('Round '+f.round+': '+r.name+'\'s '+STYLES[B.style]+' beats your '+STYLES[A.style]+(counter(B.style,A.style)>1?' (countered)':'')+'. −'+res.dmg+' HP.')}
+  f.round++;
+  if(S.hp<=0){f.ow=Math.max(f.ow,2)}
+  if(f.pw>=2||f.ow>=2||f.round>3){endFight(r);return}
+  // rival may swap setups to counter you
+  const beatsMe={close:'heavy',ranged:'close',heavy:'ranged',fortress:'heavy',bare:'close'}[A.style];
+  if(f.cur!==beatsMe&&(r.alt===beatsMe||r.style===beatsMe)&&Math.random()<.6){f.cur=beatsMe;f.lines.push(r.name+' is switching setups…')}
+  else if(Math.random()<.2){f.cur=f.cur===r.style?r.alt:r.style;f.lines.push(r.name+' is switching setups…')}
+  done();
+}
+function endFight(r){
+  const f=S.fight;
+  if(f.pw>f.ow){
+    S.wins++;const take=Math.round(r.cash*R(4,10)/100);r.cash-=take;S.cash+=take;gainXp(Math.round(12+r.level*4));addHeat(2);
+    r.hospUntil=now()+90000;let loot='';
+    if(Math.random()<.35){const pool=WEAPONS.filter(w=>(r.seen&&(w.type===(r.seen.style==='fortress'?'armor':r.seen.style)))&&w.price<4000+r.level*3000);if(pool.length){const w=pick(pool);const q=R(1,3);S.weapons[w.id]=(S.weapons[w.id]||0)+q;loot=' Looted '+q+' × '+w.name+'.'}}
+    if(f.swapped)S.flags.swapWin=1;
+    f.result='win';f.lines.push('You won. Took '+fmt(take)+'. '+r.name+' is in the hospital.'+loot);
+    toast('You beat '+r.name+'.'+loot);log('Beat '+r.name+' '+f.pw+'–'+f.ow+', took '+fmt(take)+'.'+loot);
+    S.chat.push({n:r.name,t:pick(['ok you got that one','watch your back','lucky setup','this ain\'t over'])});
+  }else if(f.ow>f.pw){
+    S.losses++;const hp=R(8,14);f.result='loss';f.lines.push('You lost. You\'re headed to the hospital and police heat rose '+hp+'%.');
+    log('Lost to '+r.name+' '+f.pw+'–'+f.ow+'.');toast(r.name+' put you in the hospital.',1);
+    const keep=f.lines,res=f.result;hospitalize();S.fight={done:1,rid:r.id,lines:keep,result:res,pw:f.pw,ow:f.ow,revealed:1,cur:f.cur};addHeat(hp);done();return;
+  }else{f.result='draw';f.lines.push('Draw. Both of you walk away.');log('Fought '+r.name+' to a draw.')}
+  f.done=1;done();
+}
+function closeFight(){S.fight=null;render()}
+function attackHood(i){
+  if(blocked())return;
+  const h=S.hoods[i];if(h.owner==='me')return;
+  if(isAlly(h.owner))return toast('That block belongs to your cartel partner.',1);
+  if(S.stam<5)return toast('Taking a block costs 5 stamina.',1);
+  S.stam-=5;
+  const st=h.owner?AI_CREWS.find(c=>c.id===h.owner).style:'close';
+  const res=round(meC(),{atk:h.def*.7,def:h.def,style:st,boost:1});
+  if(res.stale){toast('Both sides dug in. Nothing moved.');log(h.name+': standoff.')}
+  else if(res.aw){const prev=h.owner;h.owner='me';h.def=Math.round(meC().def*.5)+15;gainXp(15);addHeat(3);toast('You took '+h.name+'.');log('Took '+h.name+(prev?' from '+crewName(prev):'')+'.');if(prev)S.chat.push({n:null,t:(S.crew||S.name)+' took '+h.name+' from '+crewName(prev)+'.'})}
+  else{S.hp=Math.max(0,S.hp-res.dmg);addHeat(4);toast(h.name+' held. −'+res.dmg+' HP.',1);log('Failed to take '+h.name+'.');if(S.hp<=0)hospitalize()}
+  done();
+}
+function fortify(i){const h=S.hoods[i];const c=1500+h.def*60;if(S.cash<c)return toast('Fortifying costs '+fmt(c)+'.',1);S.cash-=c;h.def+=20;toast(h.name+' fortified.');done()}
+function ambush(){
+  const foes=S.rivals.filter(r=>!isAlly(r.crew)&&now()>r.hospUntil);if(!foes.length)return;
+  const r=pick(foes);const A=meC();let pw=0,ow=0;
+  for(let i=0;i<3&&pw<2&&ow<2;i++){const B=rivalC(r,i?(Math.random()<.5?r.alt:r.style):r.style);const res=round(A,B);if(res.stale)continue;if(res.aw)pw++;else{ow++;S.hp=Math.max(0,S.hp-res.dmg)}}
+  if(ow>pw||S.hp<=0){const hp=R(8,14);hospitalize();addHeat(hp);toast(r.name+' jumped you. Your '+STYLES[A.style]+' setup didn\'t hold.',1);log(r.name+' attacked you and won. Hospital, police heat +'+hp+'%.')}
+  else if(pw>ow){S.wins++;gainXp(8);r.hospUntil=now()+60000;toast(r.name+' tried you and lost.');log(r.name+' attacked you. Your '+STYLES[A.style]+' held.')}
+  else log(r.name+' attacked you. Standoff, nobody hurt.');
+}
+
+/* ---------- market ---------- */
+function trade(pid,qty){
+  const p=S.prices[pid];
+  if(qty>0){const c=p*qty*1.04;if(S.cash<c)return toast('Not enough cash.',1);S.cash-=c;S.inv[pid]=(S.inv[pid]||0)+qty}
+  else{const have=S.inv[pid]||0;const q=Math.min(have,-qty);if(!q)return toast('Nothing to sell.',1);S.inv[pid]=have-q;S.cash+=p*q;S.prices[pid]*=1-.004*q;toast('Sold '+q+' for '+fmt(p*q)+'.')}
+  done();
+}
+function seedListings(){while(S.listings.length<6){if(Math.random()<.45){const p=pick(PRODUCTS);S.listings.push({id:Math.random().toString(36).slice(2),by:pick(NAMES),kind:'p',ref:p.id,qty:R(2,12),price:Math.round(S.prices[p.id]*(R(80,112)/100))})}else{const w=pick(WEAPONS.filter(x=>x.price<20000));S.listings.push({id:Math.random().toString(36).slice(2),by:pick(NAMES),kind:'w',ref:w.id,qty:R(2,10),price:Math.round(w.price*(R(62,95)/100))})}}}
+const lname=L=>L.kind==='p'?PRODUCTS.find(p=>p.id===L.ref).name:W(L.ref).name;
+const lfair=L=>L.kind==='p'?S.prices[L.ref]:W(L.ref).price;
+function buyListing(id){const L=S.listings.find(x=>x.id===id);const tot=L.price*L.qty;if(S.cash<tot)return toast('Need '+fmt(tot)+'.',1);S.cash-=tot;if(L.kind==='p')S.inv[L.ref]=(S.inv[L.ref]||0)+L.qty;else S.weapons[L.ref]=(S.weapons[L.ref]||0)+L.qty;S.listings=S.listings.filter(x=>x!==L);toast('Deal done with '+L.by+'.');seedListings();done()}
+function listMine(){const v=$('#lp').value,q=+$('#lq').value,pr=+$('#lpr').value;if(!q||q<1||!pr)return toast('Enter a quantity and a price.',1);const[kind,ref]=v.split(':');const pool=kind==='p'?S.inv:S.weapons;if((pool[ref]||0)<q)return toast('You don\'t hold that many.',1);pool[ref]-=q;if(kind==='w')clampPresets();S.myListings.push({id:Math.random().toString(36).slice(2),kind,ref,qty:q,price:pr});toast('Listed on the marketplace.');done()}
+function pullListing(id){const L=S.myListings.find(x=>x.id===id);const pool=L.kind==='p'?S.inv:S.weapons;pool[L.ref]=(pool[L.ref]||0)+L.qty;S.myListings=S.myListings.filter(x=>x!==L);done()}
+
+/* ---------- crew ---------- */
+function foundCrew(){const n=$('#crewname').value.trim();if(n.length<3)return toast('Pick a crew name, 3+ letters.',1);if(S.cash<25000)return toast('Founding a crew costs $25,000.',1);S.cash-=25000;S.crew=n.slice(0,24);S.chat.push({n:null,t:'New crew on the street: '+S.crew});toast(S.crew+' is official.');done()}
+function recruit(){const c=3000+S.soldiers*1500;if(S.cash<c)return toast('Next soldier costs '+fmt(c)+'.',1);S.cash-=c;S.soldiers++;toast('A new soldier joins '+S.crew+'.');done()}
+function formCartel(id){const c=AI_CREWS.find(x=>x.id===id);if(S.level<8)return toast('Crews only deal with level 8+ bosses.',1);if(S.cash<100000)return toast('A sit-down costs $100,000.',1);S.cash-=100000;S.cartel=id;S.chat.push({n:null,t:S.crew+' and '+c.name+' formed a cartel.'});toast('Cartel formed with '+c.name+'.');done()}
+function breakCartel(){S.cartel=null;toast('Cartel dissolved.');done()}
+function bankIt(d){if(d>0){const a=Math.min(S.cash,d);S.cash-=a;S.bank+=a*.95}else{const a=Math.min(S.bank,-d);S.bank-=a;S.cash+=a}done()}
+function say(){const i=$('#say');const t=i.value.trim();if(!t)return;S.chat.push({n:S.name,t:t.slice(0,200),me:1});i.value='';done()}
+function post(){const i=$('#thread');const t=i.value.trim();if(t.length<4)return toast('Give the thread a title.',1);S.threads.unshift({t:t.slice(0,80),by:S.name,r:0});i.value='';done()}
+
+/* ---------- world tick (every 4s) ---------- */
+let wasLocked=false;
+function tick(){
+  if(!S.name)return;
+  S.tick++;
+  if(!inJail()){S.energy=Math.min(S.maxEnergy,S.energy+1);S.stam=Math.min(S.maxStam,S.stam+1)}
+  if(!inHosp()&&S.tick%2===0)S.hp=Math.min(S.maxHp,S.hp+Math.ceil(S.maxHp/50));
+  if(S.hospUntil&&!inHosp()&&S.hp<S.maxHp*.5){S.hp=Math.round(S.maxHp*.5);S.hospUntil=0;toast('Discharged from the hospital.');log('Discharged from the hospital.')}
+  if(S.jailUntil&&!inJail()){S.jailUntil=0;toast('Released from jail.');log('Released from jail.')}
+  let ph=0;for(const[k,n]of Object.entries(S.labs)){const l=LABS.find(x=>x.id===k);S.inv[l.prod]=(S.inv[l.prod]||0)+l.rate*n;ph+=l.heat*n}
+  if(ph)addHeat(ph*.2);
+  S.cash+=myHoods().reduce((a,h)=>a+h.income,0)*(S.cartel?1.15:1)/15;
+  if(S.tick%15===0)S.bank*=1.003;
+  if(S.tick%20===0&&S.heat>0)S.heat=Math.max(0,S.heat-1);
+  PRODUCTS.forEach(p=>{const v=S.prices[p.id];const nv=Math.max(p.base*.35,v*(1+(p.base-v)/p.base*.08+(Math.random()-.5)*.09));S.trend[p.id]=nv>v?1:-1;S.prices[p.id]=nv});
+  if(Math.random()<.04){const p=pick(PRODUCTS);S.prices[p.id]*=pick([.7,1.4]);S.chat.push({n:null,t:'Market shock: '+p.name+' '+(S.prices[p.id]>p.base?'shortage, prices spike.':'flood, prices crash.')})}
+  if(S.heat>50&&!inJail()&&Math.random()<S.heat/1600){const lose=Math.round(S.cash*.2);S.cash-=lose;PRODUCTS.forEach(p=>S.inv[p.id]=Math.floor((S.inv[p.id]||0)*.5));toast('Raid! Lost '+fmt(lose)+' and half your product.',1);log('Police raid: lost '+fmt(lose)+' and half your stash.')}
+  S.rivals.forEach(r=>{r.cash+=R(20,260)*r.level/3;if(Math.random()<.025)r.level++;if(Math.random()<.01)r.sh+=R(2,6)});
+  if(Math.random()<.16){const h=pick(S.hoods);const c=pick(AI_CREWS);if(h.owner!==c.id&&!isAlly(c.id)){
+    if(h.owner==='me'){if(Math.random()<.3*(80/(h.def+80))){h.owner=c.id;h.def=R(30,90);toast(c.name+' took '+h.name+' from you.',1);log(c.name+' took '+h.name+'.')}}
+    else if(Math.random()<.4){h.owner=c.id;S.chat.push({n:null,t:c.name+' moved on '+h.name+'.'})}}}
+  if(!locked()&&!(S.fight&&!S.fight.done)&&S.tick>8&&Math.random()<.025)ambush();
+  S.myListings.forEach(L=>{const fair=lfair(L)*(L.kind==='w'?.8:1);if(Math.random()<Math.max(.03,.5-(L.price/fair-1)*1.4)){S.cash+=L.price*L.qty;L.sold=1;toast('Sold '+L.qty+' × '+lname(L)+' for '+fmt(L.price*L.qty)+'.');log('Marketplace sale: '+fmt(L.price*L.qty)+'.')}});
+  S.myListings=S.myListings.filter(L=>!L.sold);
+  if(Math.random()<.1){S.listings.shift();seedListings()}
+  if(Math.random()<.35){const r=pick(S.rivals);S.chat.push({n:r.name,t:pick(CHAT).replace('{c}',crewName(pick(AI_CREWS).id)).replace('{n}',r.level).replace('{p}',pick(NAMES))})}
+  if(S.chat.length>80)S.chat=S.chat.slice(-80);
+  if(Math.random()<.05)pick(S.threads).r++;
+  checkAcc();save();
+  const lk=locked();
+  if((['market','wire','hoods','ranks','labs','fight'].includes(tab)||lk!==wasLocked)&&!busy())render();else{renderStats();renderTabs()}
+  wasLocked=lk;
+}
+const busy=()=>{const a=document.activeElement;return a&&(a.tagName==='INPUT'||a.tagName==='SELECT')};
+function done(){checkAcc();save();render()}
+
+/* ---------- views ---------- */
+const TABS=[['ops','Ops'],['fight','Fight'],['loadout','Loadout'],['hoods','Hoods'],['labs','Labs'],['market','Market'],['shop','Shop'],['crew','Crew'],['wire','Wire'],['ranks','Top Users']];
+let tab='ops',sel=null,lastChat=0;
+const fracH=(a,d,sm)=>'<div class="frac'+(sm?' sm':'')+'"><span class="a">'+a.toLocaleString()+'</span><span class="s">/</span><span class="d">'+d.toLocaleString()+'</span></div>';
+function renderStats(){
+  if(!S.name){$('#stats').innerHTML='';$('#who').innerHTML='';$('#status').innerHTML='';return}
+  $('#who').innerHTML='<b>'+esc(S.name)+'</b> · '+(S.crew?esc(S.crew):'no crew')+' · rank #'+rankOf();
+  const b=(v,m,c)=>'<div class="bar"><i style="width:'+Math.max(0,Math.min(100,v/m*100))+'%;background:var('+c+')"></i></div>';
+  const t=totals(S.presets[S.active].lo);
+  $('#stats').innerHTML=[
+   ['Cash','<span class="up">'+fmtK(S.cash)+'</span>',''],
+   ['Level '+S.level,S.xp+'/'+xpNeed(S.level),b(S.xp,xpNeed(S.level),'--sodium')],
+   ['Energy',S.energy+'/'+S.maxEnergy,b(S.energy,S.maxEnergy,'--sodium')],
+   ['Stamina',S.stam+'/'+S.maxStam,b(S.stam,S.maxStam,'--ice')],
+   ['Health',S.hp+'/'+S.maxHp,b(S.hp,S.maxHp,'--cash')],
+   ['Police heat','<span class="'+(S.heat>=75?'down':'')+'">'+Math.floor(S.heat)+'%</span>',b(S.heat,100,'--heat')],
+   ['Setup','<span class="down">'+t.atk+'</span>/<span style="color:var(--ice)">'+t.def+'</span>',''],
+  ].map(([k,v,x])=>'<div class="st"><small>'+k+'</small><span>'+v+'</span>'+x+'</div>').join('');
+  $('#status').innerHTML=inJail()?'<div class="status"><span>In jail · release in '+secs(S.jailUntil)+'</span><button class="btn red" data-do="bail">Post bail · '+fmt(bailCost())+'</button></div>':
+    inHosp()?'<div class="status"><span>In the hospital · discharge in '+secs(S.hospUntil)+'</span><button class="btn red" data-do="heal">Pay to check out · '+fmt(healCost())+'</button></div>':'';
+}
+function renderTabs(){
+  const unread=S.chat.length>lastChat&&tab!=='wire';
+  $('#tabs').innerHTML=S.name?TABS.map(([k,l])=>'<button class="tab" role="tab" data-tab="'+k+'" aria-selected="'+(tab===k)+'">'+l+(k==='wire'&&unread?'<span class="dot"></span>':'')+(k==='loadout'&&S.points?'<span class="dot"></span>':'')+(k==='fight'&&S.fight&&!S.fight.done?'<span class="dot"></span>':'')+'</button>').join(''):'';
+}
+const V={};
+V.intro=()=>'<div class="intro"><h2>New in town</h2><p class="lede">Start with $2,500, 20 weapon slots and 20 knives. Build a weapon setup, fight your way up, take blocks, and keep your police heat under 100% or you go to jail.</p><label for="nm" class="pill">Street name</label><input id="nm" maxlength="18" placeholder="e.g. Juanito Cash" value="'+esc(S.lastName||'')+'"><button class="btn go" data-do="start">Hit the streets</button></div>';
+V.ops=()=>{
+  const cards=ACTIONS.map(a=>{const miss=a.req.filter(r=>!has(r));const lock=S.level<a.lvl;
+    return '<div class="card"><h3>'+a.name+'<span class="pill">'+a.e+' NRG</span></h3><div class="meta"><span>Pays <b>'+fmt(a.cash[0])+'–'+fmt(a.cash[1])+'</b></span><span>XP <b>'+a.xp+'</b></span><span>Police <b>'+(a.heat>0?'+':'')+a.heat+'%</b></span></div>'+
+    (a.req.length?'<div class="meta">Needs: '+a.req.map(r=>'<span class="pill '+(has(r)?'ok':'foe')+'">'+(W(r)||G(r)).name+'</span>').join(' ')+'</div>':'')+
+    '<button class="btn '+(lock||miss.length?'':'go')+'" data-do="act" data-id="'+a.id+'" '+(lock||miss.length?'disabled':'')+'>'+(lock?'Level '+a.lvl+' required':miss.length?'Missing gear':'Do it')+'</button></div>'}).join('');
+  const hc=Math.round((S.maxHp-S.hp)*20);
+  return '<section><h2>Operations</h2><p class="lede">Jobs cost energy, pay cash and XP, and raise police heat. Energy and stamina refill one point every four seconds.</p><div class="grid">'+cards+'</div></section>'+
+  '<section><h2>Police heat · '+Math.floor(S.heat)+'%</h2><p class="lede">At 100% you get arrested and jailed. Losing fights, jobs gone bad and running labs all push it up. Clearing it costs more the higher your level.</p><div class="row"><button class="btn" data-do="low">Lay low (5 NRG, −8%)</button><button class="btn" data-do="clear" data-v="25" '+(S.heat>=1?'':'disabled')+'>Clear 25% · '+fmt(clearCost(Math.min(25,Math.floor(S.heat))))+'</button><button class="btn go" data-do="clear" data-v="100" '+(S.heat>=1?'':'disabled')+'>Clear all · '+fmt(clearCost(Math.floor(S.heat)))+'</button><button class="btn" data-do="heal" '+(hc&&!inHosp()?'':'disabled')+'>Street doc · '+fmt(hc)+'</button></div></section>'+
+  '<section><h2>Bank</h2><p class="lede">Raids can\'t touch the bank. Deposits carry a 5% washing fee and earn 0.3% every minute.</p><div class="row"><button class="btn" data-do="dep" data-v="1000">Deposit $1K</button><button class="btn" data-do="dep" data-v="10000">Deposit $10K</button><button class="btn" data-do="dep" data-v="1e12">Deposit all</button><button class="btn" data-do="wd" data-v="10000">Withdraw $10K</button><button class="btn" data-do="wd" data-v="1e12">Withdraw all</button><span class="pill">'+fmt(S.bank)+' banked</span></div></section>'+
+  '<section><h2>Street log</h2><div class="log">'+(S.log.map(l=>'<p>'+esc(l)+'</p>').join('')||'<p>Nothing yet. Work a corner.</p>')+'</div></section>';
+};
+function presetBar(action){
+  return '<div class="presets">'+S.presets.map((p,i)=>{const t=totals(p.lo);return '<button class="preset" data-do="'+action+'" data-i="'+i+'" aria-pressed="'+((action==='editset'?S.edit:S.active)===i)+'"><small>'+p.name+(S.active===i?' · active':'')+'</small><b>'+t.atk+' / '+t.def+'</b> <span class="pill">'+STYLES[t.style]+'</span></button>'}).join('')+'</div>';
+}
+V.fight=()=>{
+  let ring='';
+  const f=S.fight;
+  if(f){const r=S.rivals.find(x=>x.id===f.rid);const me=meC();const op=f.revealed?rivalC(r,f.cur):null;
+    const pips=n=>'<div class="pips">'+[0,1].map(i=>'<i class="'+(i<n?'w':'')+'"></i>').join('')+'</div>';
+    ring='<section class="ring"><div class="row" style="justify-content:space-between"><h2>'+(f.done?(f.result==='win'?'Victory':f.result==='loss'?'Defeat':'Draw'):'Round '+f.round+' of 3')+'</h2><span class="pill foe">vs '+esc(r.name)+' · lvl '+r.level+'</span></div>'+
+    '<div class="vs"><div class="side"><small>You · '+STYLES[me.style]+'</small>'+fracH(totals(S.presets[S.active].lo).atk,totals(S.presets[S.active].lo).def,1)+pips(f.pw)+'</div><div class="mid">VS</div><div class="side"><small>'+esc(r.name)+' · '+(op?STYLES[op.style]:'unknown setup')+'</small>'+(op?fracH(op.atk,op.def,1):'<div class="frac sm"><span class="s">??? / ???</span></div>')+pips(f.ow)+'</div></div>'+
+    '<div class="rlog">'+f.lines.map(l=>'<p>'+esc(l)+'</p>').join('')+'</div>'+
+    (f.done?'<button class="btn go" data-do="closefight">Done</button>':'<div><p class="lede" style="margin-bottom:6px">Switch setups before the next round:</p>'+presetBar('swap')+'</div><button class="btn go" data-do="round">Fight round '+f.round+'</button>')+'</section>';}
+  const list=S.rivals.slice().sort((a,b)=>b.level-a.level).map(r=>{const al=isAlly(r.crew);const hosp=now()<r.hospUntil;
+    return '<div class="card"><h3>'+esc(r.name)+'<span class="pill '+(al?'ally':'foe')+'">'+esc(crewName(r.crew))+'</span></h3><div class="meta"><span>Lvl <b>'+r.level+'</b></span><span>Cash <b>'+fmtK(r.cash)+'</b></span>'+(r.seen?'<span>Last seen <b>'+STYLES[r.seen.style]+' '+r.seen.atk+'/'+r.seen.def+'</b></span>':'<span>Setup <b>unscouted</b></span>')+'</div>'+
+    (al?'<p class="meta">Cartel family. Hands off.</p>':hosp?'<span class="pill">In hospital · '+secs(r.hospUntil)+'</span>':'<button class="btn red" data-do="hit" data-id="'+r.id+'" '+(f&&!f.done?'disabled':'')+'>Attack · 5 stamina</button>')+'</div>'}).join('');
+  return ring+'<section><h2>Pick a fight</h2><p class="lede">Fights are best of three rounds. Their setup is hidden until round one, then you can switch to a counter. Win and you take a cut of their cash and maybe some weapons. Lose and you go to the hospital and your police heat climbs. Record: <b>'+S.wins+'W – '+S.losses+'L</b>.</p><div class="grid">'+list+'</div></section>'+
+  '<section><h2>Counters</h2><div class="tri">'+
+  '<div class="card"><h3>Knife Fight <span class="pill">close</span></h3><div class="meta">Beats Gunline (gets inside). Only does 60% damage to Fortress.</div></div>'+
+  '<div class="card"><h3>Gunline <span class="pill">firearms</span></h3><div class="meta">Beats Demolition (outranges it).</div></div>'+
+  '<div class="card"><h3>Demolition <span class="pill">heavy</span></h3><div class="meta">Beats Knife Fight and cracks Fortress.</div></div>'+
+  '<div class="card"><h3>Fortress <span class="pill">def ≥ 1.4× atk</span></h3><div class="meta">Two Fortress setups can\'t hurt each other. No damage either way.</div></div></div></section>';
+};
+V.loadout=()=>{
+  const p=S.presets[S.edit];const t=totals(p.lo);const used=slotted(p.lo);
+  const owned=WEAPONS.filter(w=>S.weapons[w.id]>0);
+  const rows=Object.keys(TYPES).map(ty=>{const ws=owned.filter(w=>w.type===ty);if(!ws.length)return '';return '<p class="pill" style="justify-self:start;margin-top:6px">'+TYPES[ty]+'</p>'+ws.map(w=>'<div class="wrow">'+pic(w.id,1)+'<div class="nm">'+w.name+'<small>'+w.atk+'/'+w.def+' · own '+S.weapons[w.id]+'</small></div><div class="row"><button class="btn sm" data-do="slot" data-id="'+w.id+'" data-v="-1" aria-label="Remove one">−</button><span class="ct">'+(p.lo[w.id]||0)+'</span><button class="btn sm" data-do="slot" data-id="'+w.id+'" data-v="1" aria-label="Add one">+</button><button class="btn sm" data-do="slot" data-id="'+w.id+'" data-v="999">Max</button></div><button class="btn sm" data-do="sellw" data-id="'+w.id+'" title="Sell one for half price">Sell</button></div>').join('')}).join('');
+  const up=(k,label,cur,cap,step)=>'<div class="card"><h3>'+label+'<span class="pill '+(cur>=cap?'own':'')+'">'+cur+' / '+cap+'</span></h3><button class="btn" data-do="up" data-id="'+k+'" '+(S.points&&cur<cap?'':'disabled')+'>'+(cur>=cap?'Maxed':'+'+step+' · 1 point')+'</button></div>';
+  return '<section><h2>Upgrades · '+S.points+' point'+(S.points===1?'':'s')+'</h2><p class="lede">You earn 2 points each level.</p><div class="grid">'+up('hp','Health',S.maxHp,CAPS.hp,10)+up('stam','Stamina',S.maxStam,CAPS.stam,5)+up('slots','Weapon slots',S.slots,CAPS.slots,5)+up('energy','Energy',S.maxEnergy,CAPS.energy,5)+'</div></section>'+
+  '<section><h2>Setups</h2><p class="lede">Keep three setups ready and switch between them, even mid-fight. Your active setup also defends you when someone attacks you.</p>'+presetBar('editset')+'</section>'+
+  '<section class="ring"><div class="row" style="justify-content:space-between"><h2>'+p.name+'</h2><span class="pill '+(t.style==='fortress'?'ally':'foe')+'">'+STYLES[t.style]+'</span></div>'+fracH(t.atk,t.def)+
+  '<div class="meta"><span>Slots <b>'+used+' / '+S.slots+'</b></span><span>Attack <b style="color:var(--blood)">'+t.atk+'</b></span><span>Defense <b style="color:var(--ice)">'+t.def+'</b></span></div>'+
+  '<div class="row"><button class="btn" data-do="auto" data-v="atk">Fill: max attack</button><button class="btn" data-do="auto" data-v="bal">Fill: balanced</button><button class="btn" data-do="auto" data-v="def">Fill: max defense</button><button class="btn" data-do="auto" data-v="clear">Empty</button>'+(S.active===S.edit?'<span class="pill own">Active</span>':'<button class="btn go" data-do="use" data-i="'+S.edit+'">Make active</button>')+'</div>'+
+  '<div class="wl">'+(rows||'<p class="lede">You own no weapons. Visit the Shop or the Market.</p>')+'</div></section>';
+};
+V.hoods=()=>{
+  const mine=myHoods();const inc=mine.reduce((a,h)=>a+h.income,0)*(S.cartel?1.15:1);
+  const cells=S.hoods.map((h,i)=>{const cls=h.owner==='me'?'mine':isAlly(h.owner)?'ally':h.owner?'foe':'';
+    return '<button class="blk '+cls+'" data-do="selhood" data-i="'+i+'" aria-pressed="'+(sel===i)+'"><b>'+h.name+'</b><span>'+fmtK(h.income)+'/m</span></button>'}).join('');
+  let det='<p class="lede">Tap a block to scout it.</p>';
+  if(sel!=null){const h=S.hoods[sel];const own=h.owner==='me';const st=h.owner&&h.owner!=='me'?AI_CREWS.find(c=>c.id===h.owner).style:null;
+    det='<div class="card"><h3>'+h.name+'<span class="pill '+(own?'own':isAlly(h.owner)?'ally':h.owner?'foe':'')+'">'+esc(crewName(h.owner))+'</span></h3><div class="meta"><span>Income <b>'+fmt(h.income)+'/min</b></span><span>Defense <b>'+h.def+'</b></span>'+(st?'<span>Crew runs <b>'+STYLES[st]+'</b></span>':'')+'</div>'+
+    (own?'<button class="btn go" data-do="fort" data-i="'+sel+'">Fortify (+20 def, '+fmt(1500+h.def*60)+')</button>':isAlly(h.owner)?'<p class="meta">Cartel partner territory.</p>':'<button class="btn go" data-do="hood" data-i="'+sel+'">Move on it · 5 stamina</button>')+'</div>'}
+  return '<section><h2>The city</h2><p class="lede">You hold <b>'+mine.length+'</b> of 25 blocks, bringing in <b class="up">'+fmt(inc)+'/min</b>'+(S.cartel?' (cartel +15%)':'')+'. Each crew fights with its own setup style, so counter it.</p><div class="split"><div class="map">'+cells+'</div><div>'+det+
+  '<div class="meta" style="margin-top:10px"><span class="pill own">Yours</span><span class="pill ally">Cartel</span><span class="pill foe">Rival</span><span class="pill">Open</span></div></div></div></section>';
+};
+V.labs=()=>{
+  const cards=LABS.map(l=>{const n=S.labs[l.id]||0;const c=Math.round(l.cost*Math.pow(1.35,n));const p=PRODUCTS.find(x=>x.id===l.prod);const lock=S.level<l.lvl;
+    return '<div class="card"><h3>'+l.name+'<span class="pill '+(n?'own':'')+'">×'+n+'</span></h3><div class="meta"><span>Makes <b>'+l.rate+' '+p.unit+' '+p.name+'</b> / 4s</span><span>Police <b>+'+(l.heat*.2*15).toFixed(1)+'%/min</b></span></div><div class="meta"><span>Output worth <b>'+fmt(S.prices[p.id]*l.rate*15*n)+'/min</b> at today\'s price</span></div><button class="btn '+(lock?'':'go')+'" data-do="lab" data-id="'+l.id+'" '+(lock?'disabled':'')+'>'+(lock?'Level '+l.lvl+' required':(n?'Expand':'Open')+' · '+fmt(c))+'</button></div>'}).join('');
+  return '<section><h2>Production</h2><p class="lede">Labs turn out product every tick. It piles up in your stash until you sell it on the Market. Every lab adds police heat, and a raid takes half your stash.</p><div class="grid">'+cards+'</div></section>';
+};
+function buyLab(id){const l=LABS.find(x=>x.id===id);const n=S.labs[id]||0;const c=Math.round(l.cost*Math.pow(1.35,n));if(S.level<l.lvl)return toast('Needs level '+l.lvl+'.',1);if(S.cash<c)return toast('Need '+fmt(c)+'.',1);S.cash-=c;S.labs[id]=n+1;toast(l.name+' is up and running.');log('Opened a '+l.name+'.');done()}
+V.market=()=>{
+  const rows=PRODUCTS.map(p=>{const pr=S.prices[p.id];const ch=(pr/p.base-1)*100;const h=S.inv[p.id]||0;
+    return '<tr><td>'+p.name+'</td><td>'+fmt(pr)+' <span class="'+(S.trend[p.id]>0?'up':'down')+'">'+(S.trend[p.id]>0?'▲':'▼')+'</span></td><td class="'+(ch>=0?'up':'down')+'">'+(ch>=0?'+':'')+ch.toFixed(0)+'%</td><td>'+h+'</td><td><div class="row"><button class="btn" data-do="buy" data-id="'+p.id+'" data-v="5">Buy 5</button><button class="btn" data-do="sell" data-id="'+p.id+'" data-v="5" '+(h?'':'disabled')+'>Sell 5</button><button class="btn go" data-do="sell" data-id="'+p.id+'" data-v="1e9" '+(h?'':'disabled')+'>Sell all</button></div></td></tr>'}).join('');
+  const lst=S.listings.map(L=>{const tot=L.price*L.qty;const deal=Math.round((1-L.price/lfair(L))*100);
+    return '<div class="card">'+(L.kind==='w'?pic(L.ref):'')+'<h3>'+L.qty+' × '+lname(L)+'<span class="pill '+(deal>0?'ok':'foe')+'">'+(deal>0?deal+'% under':-deal+'% over')+'</span></h3><div class="meta"><span>Seller <b>'+esc(L.by)+'</b></span><span>Total <b>'+fmt(tot)+'</b></span>'+(L.kind==='w'?'<span><b>'+W(L.ref).atk+'/'+W(L.ref).def+'</b> each</span>':'')+'</div><button class="btn" data-do="buyl" data-id="'+L.id+'">Buy</button></div>'}).join('');
+  const mine=S.myListings.map(L=>'<div class="card"><h3>'+L.qty+' × '+lname(L)+'<span class="pill own">Listed</span></h3><div class="meta"><span>Asking <b>'+fmt(L.price)+'</b> each</span><span>Street <b>'+fmt(lfair(L)*(L.kind==='w'?.8:1))+'</b></span></div><button class="btn" data-do="pull" data-id="'+L.id+'">Pull listing</button></div>').join('');
+  const opts=PRODUCTS.map(p=>'<option value="p:'+p.id+'">'+p.name+' ('+(S.inv[p.id]||0)+')</option>').join('')+WEAPONS.filter(w=>S.weapons[w.id]>0).map(w=>'<option value="w:'+w.id+'">'+w.name+' ('+S.weapons[w.id]+')</option>').join('');
+  return '<section><h2>Street prices</h2><p class="lede">Prices drift toward their norm and spike on shortages. Buying carries a 4% markup, and selling big lots pushes the price down.</p><div class="tw"><table><thead><tr><th>Product</th><th>Price</th><th>vs norm</th><th>Stash</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div></section>'+
+  '<section><h2>Player marketplace</h2><p class="lede">Trade product and weapons with other players. Weapons here often go under shop price.</p><div class="grid">'+lst+'</div></section>'+
+  '<section><h2>Your listings</h2><div class="row"><select id="lp" aria-label="What to sell">'+opts+'</select><input id="lq" type="number" min="1" placeholder="Qty" style="width:80px" aria-label="Quantity"><input id="lpr" type="number" min="1" placeholder="Price each" style="width:120px" aria-label="Price each"><button class="btn go" data-do="list">List it</button></div><div class="grid" style="margin-top:8px">'+(mine||'<p class="lede">No active listings.</p>')+'</div></section>';
+};
+V.shop=()=>{
+  const wcards=Object.keys(TYPES).map(ty=>'<section><h2>'+TYPES[ty]+'</h2><div class="grid">'+WEAPONS.filter(w=>w.type===ty).map(w=>'<div class="card">'+pic(w.id)+'<h3>'+w.name+(S.weapons[w.id]?'<span class="pill ok">Own '+S.weapons[w.id]+'</span>':'')+'</h3><div class="meta"><span>Rating <b><span style="color:var(--blood)">'+w.atk+'</span>/<span style="color:var(--ice)">'+w.def+'</span></b></span><span>'+fmt(w.price)+' each</span></div><div class="row"><button class="btn go" data-do="bw" data-id="'+w.id+'" data-v="1">Buy 1</button><button class="btn" data-do="bw" data-id="'+w.id+'" data-v="5">Buy 5</button><button class="btn" data-do="bw" data-id="'+w.id+'" data-v="10">Buy 10</button></div></div>').join('')+'</div></section>').join('');
+  return '<section class="ring"><h2>Street Heat</h2><p class="lede">Buy reputation that makes every fight hit harder and every defense hold longer. The exact amount you have is never shown, to you or anyone else. Each purchase costs more than the last.</p><div class="row"><button class="btn go" data-do="sheat">Buy Street Heat · '+fmt(sheatCost())+'</button><span class="pill">Bought '+S.sheatBuys+'×</span></div></section>'+wcards+
+  '<section><h2>Gear</h2><p class="lede">Gear doesn\'t take weapon slots. It unlocks jobs.</p><div class="grid">'+GEAR.map(g=>'<div class="card">'+pic(g.id)+'<h3>'+g.name+(S.gear[g.id]?'<span class="pill ok">Owned</span>':'')+'</h3><div class="meta">'+g.d+'</div><button class="btn '+(S.gear[g.id]?'':'go')+'" data-do="bg" data-id="'+g.id+'" '+(S.gear[g.id]?'disabled':'')+'>'+(S.gear[g.id]?'Owned':'Buy · '+fmt(g.price))+'</button></div>').join('')+'</div></section>';
+};
+V.crew=()=>{
+  if(!S.crew)return '<section><h2>Start a crew</h2><p class="lede">A crew lets you recruit soldiers (+2% fight power each) and opens the door to a cartel with another crew. Founding costs $25,000.</p><div class="row"><input id="crewname" maxlength="24" placeholder="Crew name" aria-label="Crew name"><button class="btn go" data-do="crew">Found crew</button></div></section>';
+  const cc=3000+S.soldiers*1500;
+  const crews=AI_CREWS.map(c=>{const n=S.hoods.filter(h=>h.owner===c.id).length;const m=S.rivals.filter(r=>r.crew===c.id);
+    return '<div class="card"><h3>'+c.name+(S.cartel===c.id?'<span class="pill ally">Cartel</span>':'')+'</h3><div class="meta"><span>Blocks <b>'+n+'</b></span><span>Members <b>'+m.length+'</b></span><span>Style <b>'+STYLES[c.style]+'</b></span></div>'+
+    (S.cartel===c.id?'<button class="btn red" data-do="uncartel">Dissolve cartel</button>':S.cartel?'':'<button class="btn" data-do="cartel" data-id="'+c.id+'">Sit down · $100,000</button>')+'</div>'}).join('');
+  return '<section><h2>'+esc(S.crew)+'</h2><p class="lede">Each soldier adds 2% to your fight power.</p><div class="row"><span class="pill own">'+S.soldiers+' soldiers</span><span class="pill">'+myHoods().length+' blocks</span><button class="btn go" data-do="recruit">Recruit · '+fmt(cc)+'</button></div></section>'+
+  '<section><h2>Cartels</h2><p class="lede">A cartel gives +10% fight power, +15% block income, and peace with that crew. Crews only sit down with level 8+ bosses.</p><div class="grid">'+crews+'</div></section>';
+};
+V.wire=()=>{
+  lastChat=S.chat.length;
+  const msgs=S.chat.slice(-60).map(m=>m.n?'<p class="'+(m.me?'mine':'')+'"><span class="n">'+esc(m.n)+':</span> '+esc(m.t)+'</p>':'<p class="sys">'+esc(m.t)+'</p>').join('');
+  return '<div class="split"><section><h2>Live chat</h2><div class="feed" id="feed">'+msgs+'</div><form class="row" style="margin-top:6px" id="chatf"><input id="say" maxlength="200" placeholder="Say something to the city" style="flex:1" aria-label="Chat message"><button class="btn go">Send</button></form></section>'+
+  '<section><h2>Forums</h2><div class="tw"><table><thead><tr><th>Thread</th><th>By</th><th>Replies</th></tr></thead><tbody>'+S.threads.slice(0,12).map(t=>'<tr><td style="white-space:normal">'+esc(t.t)+'</td><td>'+esc(t.by)+'</td><td>'+t.r+'</td></tr>').join('')+'</tbody></table></div><form class="row" style="margin-top:6px" id="threadf"><input id="thread" maxlength="80" placeholder="Start a thread" style="flex:1" aria-label="Thread title"><button class="btn">Post</button></form></section></div>';
+};
+V.ranks=()=>{
+  const rows=board().map((x,i)=>'<tr class="'+(x.me?'me':'')+'"><td>'+(i+1)+'</td><td>'+esc(x.name)+'</td><td>'+esc(x.crew)+'</td><td>'+x.level+'</td><td>'+fmtK(x.worth)+'</td></tr>').join('');
+  const acc=ACCOLADES.map(a=>'<div class="card acc '+(S.accolades.includes(a.id)?'got':'')+'"><h3>'+a.name+(S.accolades.includes(a.id)?'<span class="pill own">Earned</span>':'')+'</h3><div class="meta">'+a.d+'</div></div>').join('');
+  return '<section><h2>Top users</h2><div class="tw"><table><thead><tr><th>#</th><th>Player</th><th>Crew</th><th>Lvl</th><th>Net worth</th></tr></thead><tbody>'+rows+'</tbody></table></div></section>'+
+  '<section><h2>Accolades · '+S.accolades.length+'/'+ACCOLADES.length+'</h2><div class="grid">'+acc+'</div></section>'+
+  '<section><button class="btn red" data-do="reset">'+(S.flags.confirmReset?'Tap again to wipe your save':'Start over')+'</button></section>';
+};
+function render(){
+  renderStats();renderTabs();
+  $('#main').innerHTML=S.name?V[tab]():V.intro();
+  const f=$('#feed');if(f)f.scrollTop=f.scrollHeight;
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-tab]');if(t){tab=t.dataset.tab;S.flags.confirmReset=0;render();window.scrollTo(0,0);return}
+  const b=e.target.closest('[data-do]');if(!b||b.disabled)return;
+  const d=b.dataset,id=d.id,i=+d.i,v=+d.v;
+  ({start(){const n=$('#nm').value.trim();if(n.length<2)return toast('Pick a street name.',1);S.name=n.slice(0,18);S.chat.push({n:null,t:S.name+' just arrived in the city.'});save();render()},
+    act(){doAction(id)},low:layLow,clear(){clearHeat(v)},heal,bail,
+    dep(){bankIt(v)},wd(){bankIt(-v)},
+    selhood(){sel=sel===i?null:i;render()},hood(){attackHood(i)},fort(){fortify(i)},
+    lab(){buyLab(id)},buy(){trade(id,v)},sell(){trade(id,-v)},buyl(){buyListing(id)},list:listMine,pull(){pullListing(id)},
+    bw(){buyWeapon(id,v)},bg(){buyGear(id)},sheat:buySheat,sellw(){sellWeapon(id)},
+    up(){upgrade(id)},editset(){S.edit=i;render()},use(){useSetup(i)},slot(){setSlot(id,v)},auto(){if(d.v==='clear'){S.presets[S.edit].lo={};render()}else autofill(d.v);save()},
+    hit(){startFight(id)},round:fightRound,swap(){S.active=i;render()},closefight:closeFight,
+    crew:foundCrew,recruit,cartel(){formCartel(id)},uncartel:breakCartel,
+    reset(){if(!S.flags.confirmReset){S.flags.confirmReset=1;render();return}const n=S.name;S=fresh();S.lastName=n;seedListings();save();tab='ops';render()}
+  })[d.do]?.();
+});
+document.addEventListener('submit',e=>{e.preventDefault();if(e.target.id==='chatf')say();if(e.target.id==='threadf')post()});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='nm')document.querySelector('[data-do="start"]').click()});
+
+function start(){render();wasLocked=locked();setInterval(tick,4000);setInterval(()=>{if(locked())renderStats()},1000)}
+start();
+})();
+</script>
+
+</body></html>
